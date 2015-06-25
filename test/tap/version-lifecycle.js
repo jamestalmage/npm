@@ -6,7 +6,6 @@ var osenv = require('osenv')
 var rimraf = require('rimraf')
 var test = require('tap').test
 var spawn = require("child_process").spawn
-var which = require('which')
 
 var common = require('../common-tap.js')
 var npm = require('../../')
@@ -82,7 +81,7 @@ test('npm version <semver> with failing postversion lifecycle script', function 
       t.end()
     })
   })
-})    /*  */
+})
 
 test('npm version <semver> execution order', function (t) {
   setup()
@@ -97,37 +96,34 @@ test('npm version <semver> execution order', function (t) {
       postversion: './postversion.sh'
     }
   }), 'utf8')
-  makeScript('preversion');
-  makeScript('version');
-  makeScript('postversion');
+  makeScript('preversion')
+  makeScript('version')
+  makeScript('postversion')
   npm.load({cache: cache, registry: common.registry}, function () {
-    which("git", function (err, git) {
-      t.ifError(err, "git found on system")
+    common.makeGitRepo({path: pkg}, function (err, git) {
+      t.ifError(err, "git bootstrap ran without error")
 
-      var child = spawn(git, ["init"])
+      var version = require('../../lib/version')
+      version(['patch'], function (err) {
+        t.ifError(err, "version command complete")
 
-      child.on('exit', function() {
-        var version = require('../../lib/version')
-        version(['patch'], function (err) {
-          t.ifError(err, "version command complete")
-
-          t.equal('0.0.0', readPackage('preversion').version, 'preversion')
-          t.deepEqual(readStatus('preversion', t), {
-            'preversion-package.json':'A'
-          })
-
-          t.equal('0.0.1', readPackage('version').version, 'version')
-          t.deepEqual(readStatus('version', t), {
-            'preversion-package.json':'A',
-            'version-package.json':'A'
-          })
-
-          t.equal('0.0.1', readPackage('postversion').version, 'postversion')
-          t.deepEqual(readStatus('postversion', t), {
-            'postversion-package.json':'A'
-          })
-          t.end()
+        t.equal('0.0.0', readPackage('preversion').version, 'preversion')
+        t.deepEqual(readStatus('preversion', t), {
+          'preversion-package.json':'A'
         })
+
+        t.equal('0.0.1', readPackage('version').version, 'version')
+        t.deepEqual(readStatus('version', t), {
+          'package.json':'M',
+          'preversion-package.json':'A',
+          'version-package.json':'A'
+        })
+
+        t.equal('0.0.1', readPackage('postversion').version, 'postversion')
+        t.deepEqual(readStatus('postversion', t), {
+          'postversion-package.json':'A'
+        })
+        t.end()
       })
     })
   })
@@ -152,7 +148,7 @@ function makeScript(lifecycle) {
     'cp package.json ' + lifecycle + '-package.json',
     'git add ' + lifecycle + '-package.json',
     'git status --porcelain > ' + lifecycle + '-git.txt'
-  ].join('\n');
+  ].join('\n')
   var scriptPath = path.join(pkg, lifecycle + '.sh')
   fs.writeFileSync(scriptPath, contents, 'utf-8')
   fs.chmodSync(scriptPath, 448)
@@ -163,7 +159,7 @@ function readPackage(lifecycle) {
 }
 
 function readStatus(lifecycle, t) {
-  var status = {};
+  var status = {}
   fs.readFileSync(path.join(pkg, lifecycle + '-git.txt'), 'utf-8')
     .trim()
     .split('\n')
