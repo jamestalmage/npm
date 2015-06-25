@@ -42,11 +42,32 @@ in your git config for this to work properly.  For example:
 
 If `preversion`, `version`, or `postversion` are in the `scripts` property of
 the package.json, they will be executed as part of running `npm version`.
-`preversion` and `version` are executed before bumping the package version, and
-`postversion` is executed afterwards. For example, to run `npm version` only if
-all tests pass:
 
-    "scripts": { "preversion": "npm test" }
+The exact order of execution is as follows:
+  1. Check to make sure the git working directory is clean before we get started.
+     Your scripts may add files to the commit in future steps.
+  2. Run the `preversion` script. These scripts have access to the old `version` in package.json.
+     A typical use would be running your full test suite before deploying.
+     Any files you want added to the commit should be explicitly added using `git add`.
+  3. Bump `version` in `package.json` as requested (`patch`, `minor`, `major`, etc). 
+  4. Run the `version` script. These scripts have access to the new `version` in package.json
+     (so they can incorporate it into file headers in generated files for example). 
+     Again, scripts should explicitly add generated files to the commit using `git add`.
+  5. Commit and tag.
+  6. Run the `postversion` script. Use it to clean up the file system or automatically push 
+     the commit and/or tag.
+
+Take the following example:
+
+    "scripts": {
+      "preversion": "npm test",
+      "version": "npm run build && git add -A dist",
+      "postversion": "git push && git push --tags && rm -rf build/temp"
+    }
+
+This runs all your tests, and proceeds only if they pass. Then runs your `build` script, and
+adds everything in the `dist` directory to the commit. After the commit, it pushes the new commit
+and tag up to the server, and deletes the `build/temp` directory.
 
 ## CONFIGURATION
 
