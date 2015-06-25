@@ -109,6 +109,8 @@ test('npm version <semver> execution order', function (t) {
       child.on('exit', function() {
         var version = require('../../lib/version')
         version(['patch'], function (err) {
+          t.ifError(err, "version command complete")
+
           t.equal('0.0.0', readPackage('preversion').version, 'preversion')
           t.deepEqual(readStatus('preversion', t), {
             'preversion-package.json':'A'
