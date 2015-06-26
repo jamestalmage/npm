@@ -15,10 +15,11 @@ valid second argument to semver.inc (one of `patch`, `minor`, `major`,
 `prepatch`, `preminor`, `premajor`, `prerelease`). In the second case,
 the existing version will be incremented by 1 in the specified field.
 
-If run in a git repo, it will also create a version commit and tag, and fail if
-the repo is not clean.  This behavior is controlled by `git-tag-version` (see
-below), and can be disabled on the command line by running `npm
---no-git-tag-version version`
+If run in a git repo, it will also create a version commit and tag.
+This behavior is controlled by `git-tag-version` (see below), and can 
+be disabled on the command line by running `npm --no-git-tag-version version`.
+It will fail if the working directory is not clean, unless the `--force`
+flag is set.
 
 If supplied with `--message` (shorthand: `-m`) config option, npm will
 use it as a commit message when creating a version commit.  If the
@@ -46,6 +47,7 @@ the package.json, they will be executed as part of running `npm version`.
 The exact order of execution is as follows:
   1. Check to make sure the git working directory is clean before we get started.
      Your scripts may add files to the commit in future steps.
+     This step is skipped if the `--force` flag is set.
   2. Run the `preversion` script. These scripts have access to the old `version` in package.json.
      A typical use would be running your full test suite before deploying.
      Any files you want added to the commit should be explicitly added using `git add`.
