@@ -5,7 +5,6 @@ var mkdirp = require('mkdirp')
 var osenv = require('osenv')
 var rimraf = require('rimraf')
 var test = require('tap').test
-var spawn = require("child_process").spawn
 
 var common = require('../common-tap.js')
 var npm = require('../../')
@@ -101,27 +100,27 @@ test('npm version <semver> execution order', function (t) {
   makeScript('postversion')
   npm.load({cache: cache, registry: common.registry}, function () {
     common.makeGitRepo({path: pkg}, function (err, git) {
-      t.ifError(err, "git bootstrap ran without error")
+      t.ifError(err, 'git bootstrap ran without error')
 
       var version = require('../../lib/version')
       version(['patch'], function (err) {
-        t.ifError(err, "version command complete")
+        t.ifError(err, 'version command complete')
 
         t.equal('0.0.0', readPackage('preversion').version, 'preversion')
         t.deepEqual(readStatus('preversion', t), {
-          'preversion-package.json':'A'
+          'preversion-package.json': 'A'
         })
 
         t.equal('0.0.1', readPackage('version').version, 'version')
         t.deepEqual(readStatus('version', t), {
-          'package.json':'M',
-          'preversion-package.json':'A',
-          'version-package.json':'A'
+          'package.json': 'M',
+          'preversion-package.json': 'A',
+          'version-package.json': 'A'
         })
 
         t.equal('0.0.1', readPackage('postversion').version, 'postversion')
         t.deepEqual(readStatus('postversion', t), {
-          'postversion-package.json':'A'
+          'postversion-package.json': 'A'
         })
         t.end()
       })
@@ -143,7 +142,7 @@ function setup () {
   process.chdir(pkg)
 }
 
-function makeScript(lifecycle) {
+function makeScript (lifecycle) {
   var contents = [
     'cp package.json ' + lifecycle + '-package.json',
     'git add ' + lifecycle + '-package.json',
@@ -154,11 +153,11 @@ function makeScript(lifecycle) {
   fs.chmodSync(scriptPath, 448)
 }
 
-function readPackage(lifecycle) {
-  return JSON.parse(fs.readFileSync(path.join(pkg, lifecycle + '-package.json'),'utf-8'))
+function readPackage (lifecycle) {
+  return JSON.parse(fs.readFileSync(path.join(pkg, lifecycle + '-package.json'), 'utf-8'))
 }
 
-function readStatus(lifecycle, t) {
+function readStatus (lifecycle, t) {
   var status = {}
   fs.readFileSync(path.join(pkg, lifecycle + '-git.txt'), 'utf-8')
     .trim()
