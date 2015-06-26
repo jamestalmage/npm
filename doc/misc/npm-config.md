@@ -268,6 +268,17 @@ Install `dev-dependencies` along with packages.
 Note that `dev-dependencies` are also installed if the `npat` flag is
 set.
 
+### dry-run
+
+* Default: false
+* Type: Boolean
+
+Indicates that you don't want npm to make any changes and that it should
+only report what it would have done.  This can be passed into any of the
+commands that modify your local installation, eg, `install`, `update`,
+`dedupe`, `uninstall`.  This is NOT currently honored by network related
+commands, eg `dist-tags`, `owner`, `publish`, etc.
+
 ### editor
 
 * Default: `EDITOR` environment variable if set, or `"vi"` on Posix,
@@ -772,17 +783,6 @@ using `-s` to add a signature.
 Note that git requires you to have set up GPG keys in your git configs
 for this to work properly.
 
-### spin
-
-* Default: true
-* Type: Boolean or `"always"`
-
-When set to `true`, npm will display an ascii spinner while it is doing
-things, if `process.stderr` is a TTY.
-
-Set to `false` to suppress the spinner, or set to `always` to output
-the spinner even for non-TTY outputs.
-
 ### strict-ssl
 
 * Default: true
@@ -827,7 +827,7 @@ on success, but left behind on failure for forensic purposes.
 
 ### unicode
 
-* Default: true
+* Default: true on windows and mac/unix systems with a unicode locale
 * Type: Boolean
 
 When set to true, npm uses unicode characters in the tree output.  When

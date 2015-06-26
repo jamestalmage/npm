@@ -3,10 +3,9 @@ npm-ls(1) -- List installed packages
 
 ## SYNOPSIS
 
-    npm list [[@<scope>/]<pkg> ...]
-    npm ls [[@<scope>/]<pkg> ...]
-    npm la [[@<scope>/]<pkg> ...]
-    npm ll [[@<scope>/]<pkg> ...]
+    npm ls [[<@scope>/]<pkg> ...]
+
+    aliases: list, la, ll
 
 ## DESCRIPTION
 
@@ -27,6 +26,9 @@ It will print out extraneous, missing, and invalid packages.
 If a project specifies git urls for dependencies these are shown
 in parentheses after the name@version to make it easier for users to
 recognize potential forks of a project.
+
+The tree shown is the logical dependency tree, based on package
+dependencies, not the physical layout of your node_modules folder.
 
 When run as `ll` or `la`, it shows extended information by default.
 

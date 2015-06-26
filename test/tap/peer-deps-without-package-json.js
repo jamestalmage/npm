@@ -51,17 +51,16 @@ test('installing a peerDeps-using package without package.json', function (t) {
       registry: common.registry,
       cache: cache
     }, function () {
-      npm.install(common.registry + '/ok.js', function (err) {
+      npm.install(common.registry + '/ok.js', function (err, result) {
         t.ifError(err, 'installed ok.js')
 
         t.ok(
           fs.existsSync(path.join(nodeModules, 'npm-test-peer-deps-file')),
           'passive peer dep installed'
         )
-        t.ok(
-          fs.existsSync(path.join(nodeModules, 'underscore')),
-          'underscore installed'
-        )
+
+        t.is(result.warnings.length, 1, 'got a warning from the peer dep')
+        t.is(result.warnings[0].code, 'EPEERINVALID', 'warning is for a missing/invalid peer')
 
         t.end()
         s.close() // shutdown mock registry.
